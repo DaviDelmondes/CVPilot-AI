@@ -60,7 +60,7 @@ export const authService = {
     });
 
     return {
-      token: signToken({ sub: user.id, role: user.role }),
+      token: signToken({ userId: user.id, role: user.role }),
       user: await formatUser(user.id)
     };
   },
@@ -81,7 +81,7 @@ export const authService = {
     }
 
     return {
-      token: signToken({ sub: user.id, role: user.role }),
+      token: signToken({ userId: user.id, role: user.role }),
       user: await formatUser(user.id)
     };
   },
