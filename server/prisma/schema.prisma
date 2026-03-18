@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum GenerationType {
+  PROFESSIONAL_SUMMARY
+  LINKEDIN_HEADLINE
+  COVER_LETTER
+  TEXT_IMPROVEMENT
+  SHORT_BIO
+}
+
+model Plan {
+  id              String   @id @default(cuid())
+  name            String   @unique
+  description     String
+  generationLimit Int?
+  priceMonthly    Float    @default(0)
+  users           User[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model User {
+  id           String         @id @default(cuid())
+  name         String
+  email        String         @unique
+  passwordHash String
+  role         UserRole       @default(USER)
+  planId       String
+  plan         Plan           @relation(fields: [planId], references: [id])
+  generations  Generation[]
+  usageHistory UsageHistory[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model Generation {
+  id              String         @id @default(cuid())
+  userId          String
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type            GenerationType
+  tone            String
+  area            String
+  experienceLevel String
+  skills          String[]
+  goal            String
+  baseText        String?
+  prompt          String
+  output          String         @db.Text
+  createdAt       DateTime       @default(now())
+}
+
+model UsageHistory {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  generationId String?
+  action       String
+  metadata     Json?
+  createdAt    DateTime @default(now())
+}
